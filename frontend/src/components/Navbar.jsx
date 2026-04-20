@@ -22,61 +22,94 @@ export default function Navbar() {
 
   const getBreadcrumb = () => {
     const path = location.pathname;
-    if (path === "/" || path === "/login") return null;
-    if (path === "/dashboard") return [{ label: "Dashboard", path: "/dashboard" }];
-    if (path.includes("/dashboard/datasets")) return [
-      { label: "Dashboard", path: "/dashboard" },
-      { label: "Datasets", path: "/dashboard" },
-    ];
-    return null;
+    const breadcrumbs = [{ label: "kentia_cal", path: "/" }];
+
+    if (path === "/" || path === "/login") return breadcrumbs;
+
+    if (path === "/dashboard") {
+      breadcrumbs.push({ label: "Calibration Datasets", path: "/dashboard" });
+    } else if (path.includes("/dashboard/datasets/new")) {
+      breadcrumbs.push({ label: "Calibration Datasets", path: "/dashboard" });
+      breadcrumbs.push({ label: "New Dataset", path: "/dashboard/datasets/new" });
+    } else if (path.includes("/dashboard/datasets/")) {
+      breadcrumbs.push({ label: "Calibration Datasets", path: "/dashboard" });
+      const datasetId = path.split("/").pop();
+      breadcrumbs.push({ label: `Dataset #${datasetId}`, path: path });
+    } else if (path === "/features") {
+      breadcrumbs.push({ label: "Features", path: "/features" });
+    } else if (path === "/releases") {
+      breadcrumbs.push({ label: "Releases", path: "/releases" });
+    }
+
+    return breadcrumbs;
   };
 
-  const breadcrumb = getBreadcrumb();
+  const breadcrumbs = getBreadcrumb();
 
   return (
     <nav className="bg-white border-b border-gray-light sticky top-0 z-40">
-      <div className="h-16 px-6 flex items-center justify-between">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 font-bold text-lg">
-          <span className="text-2xl">⚙</span>
-          <span className="text-green-dark">kentia_cal</span>
-        </Link>
+      <div className="h-14 px-6 flex items-center justify-between">
+        {/* Left: Logo + Breadcrumb */}
+        <div className="flex items-center gap-3 min-w-0">
+          <Link to="/" className="flex items-center gap-1.5 font-semibold text-sm flex-shrink-0">
+            <span className="text-xl">⚙</span>
+            <span className="text-green-dark">kentia_cal</span>
+          </Link>
 
-        {/* Breadcrumb - Center */}
-        {breadcrumb && token && (
-          <div className="hidden md:flex items-center gap-1 text-sm">
-            {breadcrumb.map((item, idx) => (
-              <div key={idx} className="flex items-center gap-1">
-                {idx > 0 && <span className="text-gray-400">/</span>}
-                <Link to={item.path} className="text-gray-600 hover:text-gray-950 transition">
-                  {item.label}
-                </Link>
-              </div>
-            ))}
-          </div>
-        )}
+          {/* Breadcrumb */}
+          {token && breadcrumbs.length > 1 && (
+            <div className="hidden sm:flex items-center gap-1.5 text-sm ml-2 pl-2 border-l border-gray-light">
+              {breadcrumbs.slice(1).map((crumb, idx) => (
+                <div key={idx} className="flex items-center gap-1.5">
+                  {idx > 0 && <span className="text-gray-400 text-xs">></span>}
+                  <Link
+                    to={crumb.path}
+                    className={`transition ${
+                      location.pathname === crumb.path
+                        ? "text-gray-950 font-medium"
+                        : "text-gray-600 hover:text-gray-950"
+                    }`}
+                  >
+                    {crumb.label}
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
-        {/* Right Side */}
-        <div className="flex items-center gap-4">
+        {/* Right: Icons & User */}
+        <div className="flex items-center gap-3 ml-auto">
           {token ? (
             <>
-              {/* Help & Notifications Icons */}
-              <button className="text-gray-600 hover:text-gray-950 text-lg transition" title="Ayuda">
-                ?
-              </button>
-              <button className="text-gray-600 hover:text-gray-950 text-lg transition relative" title="Notificaciones">
-                🔔
+              {/* Help Icon */}
+              <button
+                className="text-gray-600 hover:text-gray-950 transition p-1 rounded hover:bg-gray-50"
+                title="Ayuda"
+              >
+                <span className="text-lg">?</span>
               </button>
 
-              {/* User Info & Avatar */}
-              <div className="flex items-center gap-2 pl-4 border-l border-gray-light">
-                <div className="flex flex-col items-end text-xs">
-                  <span className="font-medium text-gray-950">
+              {/* Notifications Icon */}
+              <button
+                className="text-gray-600 hover:text-gray-950 transition p-1 rounded hover:bg-gray-50 relative"
+                title="Notificaciones"
+              >
+                <span className="text-lg">🔔</span>
+              </button>
+
+              {/* Separator */}
+              <div className="w-px h-6 bg-gray-light" />
+
+              {/* Avatar & User info */}
+              <div className="flex items-center gap-2">
+                <div className="flex flex-col items-end">
+                  <span className="text-xs font-medium text-gray-950 leading-tight">
                     {user?.first_name || user?.email?.split("@")[0]}
                   </span>
-                  <span className="text-gray-500 capitalize">{role}</span>
+                  <span className="text-xs text-gray-500 capitalize leading-tight">{role}</span>
                 </div>
-                <div className="w-8 h-8 rounded-full bg-green-dark text-white flex items-center justify-center text-xs font-bold">
+                <div className="w-8 h-8 rounded-full bg-green-dark text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
                   {getInitials()}
                 </div>
               </div>
@@ -84,16 +117,16 @@ export default function Navbar() {
               {/* Logout */}
               <button
                 onClick={handleLogout}
-                className="text-gray-600 hover:text-gray-950 text-lg transition"
+                className="text-gray-600 hover:text-gray-950 transition p-1 rounded hover:bg-gray-50"
                 title="Salir"
               >
-                ↗
+                <span className="text-lg">↗</span>
               </button>
             </>
           ) : (
             <Link
               to="/login"
-              className="px-4 py-2 border border-green-dark text-green-dark rounded-lg font-medium hover:bg-green-dark hover:text-white transition-colors text-sm"
+              className="px-4 py-1.5 border border-green-dark text-green-dark rounded font-medium hover:bg-green-dark hover:text-white transition-colors text-sm whitespace-nowrap"
             >
               Iniciar sesión
             </Link>
