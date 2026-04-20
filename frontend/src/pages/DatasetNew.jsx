@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { createRelease } from "../lib/api.js";
+import { createDataset } from "../lib/api.js";
 import Navbar from "../components/Navbar.jsx";
 
 export default function DatasetNew() {
@@ -14,7 +14,7 @@ export default function DatasetNew() {
     setError("");
     setLoading(true);
     try {
-      const data = await createRelease(formData);
+      const data = await createDataset(formData);
       navigate(`/dashboard/datasets/${data.id}`);
     } catch (err) {
       setError(err.message);

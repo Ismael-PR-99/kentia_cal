@@ -61,7 +61,7 @@ export default function Navbar() {
             <div className="hidden sm:flex items-center gap-1.5 text-sm ml-2 pl-2 border-l border-gray-light">
               {breadcrumbs.slice(1).map((crumb, idx) => (
                 <div key={idx} className="flex items-center gap-1.5">
-                  {idx > 0 && <span className="text-gray-400 text-xs">></span>}
+                  {idx > 0 && <span className="text-gray-400 text-xs">{">"}  </span>}
                   <Link
                     to={crumb.path}
                     className={`transition ${

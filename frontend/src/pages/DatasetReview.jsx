@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { approveCalibrationValue } from "../lib/api.js";
+import { approveDataset } from "../lib/api.js";
 import Navbar from "../components/Navbar.jsx";
 
 export default function DatasetReview() {
@@ -11,7 +11,7 @@ export default function DatasetReview() {
   const handleApprove = async () => {
     setLoading(true);
     try {
-      await approveCalibrationValue(id);
+      await approveDataset(id);
       navigate(`/dashboard/datasets/${id}`);
     } catch (err) {
       console.error(err);
