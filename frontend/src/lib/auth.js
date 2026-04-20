@@ -22,3 +22,15 @@ export const getUserRole = () => {
 	const payload = parseJwt(token);
 	return payload?.role || null;
 };
+
+export const getUser = () => {
+	const token = getToken();
+	const payload = parseJwt(token);
+	if (!payload) return null;
+	return {
+		email: payload.email,
+		first_name: payload.first_name,
+		last_name: payload.last_name,
+		role: payload.role,
+	};
+};

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../lib/api.js";
 import { setToken } from "../lib/auth.js";
+import Navbar from "../components/Navbar.jsx";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -26,45 +27,54 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 px-4">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
-        <h1 className="text-3xl font-bold text-slate-900 mb-2">kentia_cal</h1>
-        <p className="text-slate-600 mb-8">Sistema de calibración automoción</p>
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
+    <>
+      <Navbar />
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+        <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md border border-slate-200">
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-slate-900">Iniciar sesión</h1>
+            <p className="text-sm text-slate-600 mt-1">Sistema de calibración de ECUs</p>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Contraseña</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+                required
+              />
+            </div>
 
-          {error && <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">{error}</div>}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Contraseña</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+                required
+              />
+            </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50"
-          >
-            {loading ? "Accediendo..." : "Acceder"}
-          </button>
-        </form>
+            {error && (
+              <div className="text-red-700 text-sm bg-red-50 p-3 rounded-lg border border-red-200">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-green-700 text-white py-2 rounded-lg font-medium hover:bg-green-800 transition-colors disabled:opacity-50"
+            >
+              {loading ? "Accediendo..." : "Acceder"}
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
