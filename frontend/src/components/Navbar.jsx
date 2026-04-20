@@ -1,43 +1,53 @@
-import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { Link, useNavigate } from "react-router-dom";
+import { getToken, clearToken, getUserRole } from "../lib/auth.js";
 
 export default function Navbar() {
+  const navigate = useNavigate();
+  const token = getToken();
+  const role = getUserRole();
+
+  const handleLogout = () => {
+    clearToken();
+    navigate("/login");
+  };
+
   return (
-    <nav className="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <nav className="bg-slate-900 border-b border-slate-700 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">F</span>
-            </div>
-            <span className="font-semibold text-xl text-slate-900">FisioApp</span>
+          {/* Logo */}
+          <Link to="/" className="font-bold text-xl">
+            kentia_cal
           </Link>
 
-          <div className="hidden md:flex items-center space-x-8">
-            <Link to="/blog" className="text-slate-600 hover:text-slate-900 transition">
-              Blog
-            </Link>
-            <Link to="/calculadoras" className="text-slate-600 hover:text-slate-900 transition">
-              Calculadoras
-            </Link>
-            <Link to="/recursos" className="text-slate-600 hover:text-slate-900 transition">
-              Recursos
-            </Link>
+          {/* Menu */}
+          <div className="flex items-center gap-6">
+            {token ? (
+              <>
+                <span className="text-xs text-slate-400">Rol: {role}</span>
+                <button
+                  onClick={handleLogout}
+                  className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 transition"
+                >
+                  Salir
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 transition"
+                >
+                  Iniciar sesión
+                </Link>
+              </>
+            )}
           </div>
-
-          <div className="flex items-center space-x-4">
-            <Link
-              to="/login"
-              className="text-slate-600 hover:text-slate-900 transition font-medium"
-            >
-              Acceder
-            </Link>
-            <Link
-              to="/register"
-              className="bg-slate-900 text-white px-4 py-2 rounded-lg hover:bg-slate-800 transition font-medium"
-            >
-              Registrarse
-            </Link>
+        </div>
+      </div>
+    </nav>
+  );
+}
           </div>
         </div>
       </div>

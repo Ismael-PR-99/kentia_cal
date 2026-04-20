@@ -1,11 +1,7 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { login } from "../lib/api.js";
 import { setToken } from "../lib/auth.js";
-import AuthCard from "../components/AuthCard";
-import AnimatedInput from "../components/AnimatedInput";
-import FallingPetals from "../components/FallingPetals";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -14,8 +10,8 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setError("");
     setLoading(true);
     try {
@@ -23,78 +19,52 @@ export default function Login() {
       setToken(data.access);
       navigate("/dashboard");
     } catch (err) {
-      setError(err.message || "Credenciales inválidas");
+      setError(err.message || "Credenciales inv�lidas");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center
-                    bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-4 relative">
-      <FallingPetals />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 px-4">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+        <h1 className="text-3xl font-bold text-slate-900 mb-2">kentia_cal</h1>
+        <p className="text-slate-600 mb-8">Sistema de calibraci�n automoci�n</p>
 
-      <AuthCard>
-        {/* Header */}
-        <div className="px-8 pt-8 pb-6 border-b border-slate-100">
-          <h1 className="text-2xl font-semibold text-slate-800">
-            Acceso profesional
-          </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Plataforma de gestión clínica
-          </p>
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="px-8 py-6 space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Contrase�a</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
 
-          <AnimatedInput
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="usuario@clinica.com"
-            required
-          />
+          {error && <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">{error}</div>}
 
-          <AnimatedInput
-            label="Contraseña"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            required
-          />
-
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-sm text-red-700 bg-red-50
-                         border border-red-200 rounded-lg px-4 py-2"
-            >
-              {error}
-            </motion.div>
-          )}
-
-          <motion.button
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.98 }}
+          <button
+            type="submit"
             disabled={loading}
-            className="w-full bg-slate-800 text-white py-3 rounded-lg
-                       font-medium hover:bg-slate-900 transition"
+            className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50"
           >
-            {loading ? "Verificando..." : "Acceder"}
-          </motion.button>
+            {loading ? "Accediendo..." : "Acceder"}
+          </button>
         </form>
-
-        <p className="text-sm text-center text-slate-500 pb-6">
-          ¿No tienes acceso?{" "}
-          <Link to="/register" className="text-slate-800 font-medium hover:underline">
-            Solicitar cuenta
-          </Link>
-        </p>
-      </AuthCard>
+      </div>
     </div>
   );
 }
