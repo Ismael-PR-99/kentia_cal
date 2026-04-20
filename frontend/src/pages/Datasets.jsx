@@ -401,7 +401,11 @@ export default function Datasets() {
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
-              className={`px-2 py-1 border rounded text-sm transition ${\n                currentPage === page\n                  ? "bg-green-dark text-white border-green-dark"\n                  : "border-gray-light hover:bg-gray-50"\n              }`}
+              className={`px-2 py-1 border rounded text-sm transition ${
+                currentPage === page
+                  ? "bg-green-dark text-white border-green-dark"
+                  : "border-gray-light hover:bg-gray-50"
+              }`}
             >
               {page}
             </button>
