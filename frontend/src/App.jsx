@@ -4,7 +4,7 @@ import RoleGuard from "./components/RoleGuard.jsx";
 
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
+import Datasets from "./pages/Datasets.jsx";
 import DatasetDetail from "./pages/DatasetDetail.jsx";
 import DatasetNew from "./pages/DatasetNew.jsx";
 import DatasetReview from "./pages/DatasetReview.jsx";
@@ -18,7 +18,7 @@ export default function App() {
         path="/dashboard"
         element={
           <RequireAuth>
-            <Dashboard />
+            <Datasets />
           </RequireAuth>
         }
       />
