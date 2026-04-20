@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { login } from "../lib/api.js";
-import { setToken } from "../lib/auth.js";
 import Navbar from "../components/Navbar.jsx";
 
 export default function Login() {
@@ -17,7 +16,6 @@ export default function Login() {
     setLoading(true);
     try {
       const data = await login(email, password);
-      setToken(data.access);
       navigate("/dashboard");
     } catch (err) {
       setError(err.message || "Credenciales inválidas");
@@ -31,8 +29,9 @@ export default function Login() {
       <Navbar />
       <div className="min-h-screen flex items-center justify-center bg-white px-4">
         <div className="bg-white rounded-lg border border-gray-light p-8 w-full max-w-md">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-gray-950">Iniciar sesión</h1>
+          <div className="mb-8 text-center">
+            <div className="text-2xl font-bold text-green-dark mb-3">⚙ kentia_cal</div>
+            <h1 className="text-xl font-bold text-gray-950">Iniciar sesión</h1>
             <p className="text-sm text-gray-600 mt-1">Sistema de calibración de ECUs</p>
           </div>
 
@@ -70,9 +69,16 @@ export default function Login() {
               disabled={loading}
               className="w-full bg-green-dark text-white py-2 rounded-lg font-medium hover:bg-opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Accediendo..." : "Acceder"}
+              {loading ? "Accediendo..." : "Iniciar sesión"}
             </button>
           </form>
+
+          <p className="text-center text-sm text-gray-600 mt-6">
+            ¿No tienes cuenta?{" "}
+            <Link to="/register" className="text-green-dark font-medium hover:underline">
+              Regístrate
+            </Link>
+          </p>
         </div>
       </div>
     </>
