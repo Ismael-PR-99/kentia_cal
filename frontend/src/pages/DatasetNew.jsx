@@ -26,52 +26,66 @@ export default function DatasetNew() {
   return (
     <>
       <Navbar />
-      <div className="max-w-2xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-slate-900 mb-8">Nuevo Dataset</h1>
+      <div className="max-w-2xl mx-auto px-6 py-8">
+        <h1 className="text-3xl font-bold text-gray-950 mb-8">Nuevo Dataset</h1>
 
-        <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-lg p-8 space-y-6">
+        <form onSubmit={handleSubmit} className="card space-y-6">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Número de Release</label>
+            <label className="block text-sm font-medium text-gray-950 mb-2">NÃºmero de Release</label>
             <input
               type="text"
               value={formData.number}
               onChange={(e) => setFormData({ ...formData, number: e.target.value })}
-              placeholder="v1.0.0"
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="ej: v1.0.0"
+              className="w-full px-4 py-2 border border-gray-light rounded-lg focus:outline-none focus:ring-2 focus:ring-green-dark/30 focus:border-transparent bg-white text-gray-950"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Fecha</label>
+            <label className="block text-sm font-medium text-gray-950 mb-2">Fecha</label>
             <input
               type="date"
               value={formData.date}
               onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-light rounded-lg focus:outline-none focus:ring-2 focus:ring-green-dark/30 focus:border-transparent bg-white text-gray-950"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Notas</label>
+            <label className="block text-sm font-medium text-gray-950 mb-2">Notas</label>
             <textarea
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-light rounded-lg focus:outline-none focus:ring-2 focus:ring-green-dark/30 focus:border-transparent bg-white text-gray-950"
               rows="4"
+              placeholder="Notas adicionales del dataset..."
             />
           </div>
 
-          {error && <div className="text-red-600 bg-red-50 p-3 rounded-lg">{error}</div>}
+          {error && (
+            <div className="text-red-700 text-sm bg-red-50 p-3 rounded-lg border border-red-200">
+              {error}
+            </div>
+          )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50"
-          >
-            {loading ? "Creando..." : "Crear Dataset"}
-          </button>
+          <div className="flex gap-3">
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 btn-primary"
+            >
+              {loading ? "Creando..." : "Crear Dataset"}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/dashboard")}
+              className="flex-1 btn-secondary"
+            >
+              Cancelar
+            </button>
+          </div>
         </form>
       </div>
     </>

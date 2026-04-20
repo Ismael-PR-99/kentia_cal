@@ -23,25 +23,51 @@ export default function DatasetReview() {
   return (
     <>
       <Navbar />
-      <div className="max-w-2xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-slate-900 mb-8">Revisión Dataset #{id}</h1>
+      <div className="max-w-4xl mx-auto px-6 py-8">
+        <h1 className="text-3xl font-bold text-gray-950 mb-8">Revisar Dataset #{id}</h1>
 
-        <div className="bg-white border border-slate-200 rounded-lg p-8 space-y-4">
-          <p className="text-slate-600">Contenido de revisión...</p>
+        <div className="card space-y-6">
+          {/* Status Badge */}
+          <div className="flex items-center gap-3">
+            <span className="text-gray-600 font-medium">Estado:</span>
+            <span className="badge-app">Under Approval</span>
+          </div>
 
-          <div className="flex gap-4">
+          {/* Review Content */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-950 mb-4">Cambios a revisar</h3>
+            <table className="w-full">
+              <thead className="table-header">
+                <tr>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-950">Variable</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-950">Valor</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-950">Madurez</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="table-row">
+                  <td colSpan="3" className="py-8 px-4 text-center text-gray-600">
+                    Cargando cambios...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 pt-4">
             <button
               onClick={handleApprove}
               disabled={loading}
-              className="flex-1 bg-green-600 text-white py-2 rounded-lg font-medium hover:bg-green-700 transition disabled:opacity-50"
+              className="flex-1 btn-primary"
             >
-              {loading ? "Aprobando..." : "Aprobar"}
+              {loading ? "Aprobando..." : "âœ“ Aprobar Dataset"}
             </button>
             <button
               onClick={() => navigate(`/dashboard/datasets/${id}`)}
-              className="flex-1 bg-slate-600 text-white py-2 rounded-lg font-medium hover:bg-slate-700 transition"
+              className="flex-1 btn-secondary"
             >
-              Cancelar
+              Volver
             </button>
           </div>
         </div>

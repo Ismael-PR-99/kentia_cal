@@ -18,19 +18,19 @@ export default function Home() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-slate-50">
+      <main className="bg-white">
         {/* Hero Section */}
         <section className="py-20 px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-5xl font-bold text-slate-900 mb-4">
+            <h1 className="text-5xl font-bold text-gray-950 mb-4">
               Calibration Manager
             </h1>
-            <p className="text-xl text-slate-600 mb-12">
-              Sistema de gestiÛn de calibraciÛn de ECUs para automociÛn
+            <p className="text-xl text-gray-600 mb-12">
+              Sistema de gesti√≥n de calibraci√≥n de ECUs para automoci√≥n
             </p>
             <a
               href="/login"
-              className="px-8 py-3 bg-green-700 text-white rounded-lg font-medium hover:bg-green-800 transition-colors inline-block"
+              className="px-8 py-3 bg-green-dark text-white rounded-lg font-medium hover:bg-opacity-90 transition-all inline-block"
             >
               Acceder al sistema
             </a>
@@ -38,53 +38,53 @@ export default function Home() {
         </section>
 
         {/* Features Section */}
-        <section className="py-16 px-4 bg-white">
+        <section className="py-16 px-4 bg-gray-ultra-light">
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold text-slate-900 text-center mb-12">
-              CaracterÌsticas principales
+            <h2 className="text-3xl font-bold text-gray-950 text-center mb-12">
+              Caracter√≠sticas principales
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Feature 1 */}
-              <div className="border border-slate-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-                <div className="text-3xl mb-4">??</div>
-                <h3 className="text-lg font-bold text-slate-900 mb-3">
-                  GestiÛn de Datasets
+              <div className="card">
+                <div className="text-3xl mb-4">üìä</div>
+                <h3 className="text-lg font-bold text-gray-950 mb-3">
+                  Gesti√≥n de Datasets
                 </h3>
-                <p className="text-slate-600">
-                  Gestiona datasets completos de calibraciÛn con valores, unidades y trazabilidad total de cambios.
+                <p className="text-gray-600">
+                  Gestiona datasets completos de calibraci√≥n con valores, unidades y trazabilidad total de cambios.
                 </p>
               </div>
 
               {/* Feature 2 */}
-              <div className="border border-slate-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-                <div className="text-3xl mb-4">??</div>
-                <h3 className="text-lg font-bold text-slate-900 mb-3">
+              <div className="card">
+                <div className="text-3xl mb-4">üîÑ</div>
+                <h3 className="text-lg font-bold text-gray-950 mb-3">
                   Ciclo de Vida Completo
                 </h3>
-                <p className="text-slate-600">
-                  EDIT ? APPROVAL ? RC ? RELEASED. Control total del proceso desde creaciÛn hasta release.
+                <p className="text-gray-600">
+                  EDIT ‚Üí APPROVAL ‚Üí RC ‚Üí RELEASED. Control total del proceso desde creaci√≥n hasta release.
                 </p>
               </div>
 
               {/* Feature 3 */}
-              <div className="border border-slate-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-                <div className="text-3xl mb-4">???</div>
-                <h3 className="text-lg font-bold text-slate-900 mb-3">
-                  GestiÛn por Labels
+              <div className="card">
+                <div className="text-3xl mb-4">üè∑Ô∏è</div>
+                <h3 className="text-lg font-bold text-gray-950 mb-3">
+                  Gesti√≥n por Labels
                 </h3>
-                <p className="text-slate-600">
-                  Organiza y gestiona valores de calibraciÛn con etiquetas, unidades y descripciones detalladas.
+                <p className="text-gray-600">
+                  Organiza y gestiona valores de calibraci√≥n con etiquetas, unidades y descripciones detalladas.
                 </p>
               </div>
 
               {/* Feature 4 */}
-              <div className="border border-slate-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-                <div className="text-3xl mb-4">??</div>
-                <h3 className="text-lg font-bold text-slate-900 mb-3">
+              <div className="card">
+                <div className="text-3xl mb-4">üë•</div>
+                <h3 className="text-lg font-bold text-gray-950 mb-3">
                   Control de Roles
                 </h3>
-                <p className="text-slate-600">
+                <p className="text-gray-600">
                   Roles diferenciados: OEM (aprueba), Supplier (edita), Admin (total), Viewer (consulta).
                 </p>
               </div>
@@ -93,26 +93,26 @@ export default function Home() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 px-4">
-          <div className="max-w-2xl mx-auto bg-white border border-slate-200 rounded-lg p-8 text-center">
-            <h2 className="text-2xl font-bold text-slate-900 mb-4">
-              øListo para comenzar?
+        <section className="py-16 px-4 bg-white">
+          <div className="max-w-2xl mx-auto border border-gray-light rounded-lg p-8 text-center">
+            <h2 className="text-2xl font-bold text-gray-950 mb-4">
+              ¬øListo para comenzar?
             </h2>
-            <p className="text-slate-600 mb-6">
-              Inicia sesiÛn en el sistema para acceder a tu workspace de calibraciÛn.
+            <p className="text-gray-600 mb-6">
+              Inicia sesi√≥n en el sistema para acceder a tu workspace de calibraci√≥n.
             </p>
             <a
               href="/login"
-              className="px-8 py-3 bg-green-700 text-white rounded-lg font-medium hover:bg-green-800 transition-colors inline-block"
+              className="px-8 py-3 bg-green-dark text-white rounded-lg font-medium hover:bg-opacity-90 transition-all inline-block"
             >
-              Iniciar sesiÛn
+              Iniciar sesi√≥n
             </a>
           </div>
         </section>
 
         {/* Footer */}
-        <footer className="py-8 px-4 bg-slate-100 text-center text-slate-600 text-sm">
-          <p>© 2026 kentia_cal. Sistema de calibraciÛn para automociÛn.</p>
+        <footer className="py-8 px-4 bg-gray-ultra-light text-center text-gray-600 text-sm border-t border-gray-light">
+          <p>¬© 2026 kentia_cal. Sistema de calibraci√≥n para automoci√≥n.</p>
         </footer>
       </main>
     </>

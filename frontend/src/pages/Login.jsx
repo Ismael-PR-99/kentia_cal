@@ -20,7 +20,7 @@ export default function Login() {
       setToken(data.access);
       navigate("/dashboard");
     } catch (err) {
-      setError(err.message || "Credenciales inválidas");
+      setError(err.message || "Credenciales invÃ¡lidas");
     } finally {
       setLoading(false);
     }
@@ -29,32 +29,32 @@ export default function Login() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
-        <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md border border-slate-200">
+      <div className="min-h-screen flex items-center justify-center bg-white px-4">
+        <div className="bg-white rounded-lg border border-gray-light p-8 w-full max-w-md">
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-slate-900">Iniciar sesión</h1>
-            <p className="text-sm text-slate-600 mt-1">Sistema de calibración de ECUs</p>
+            <h1 className="text-2xl font-bold text-gray-950">Iniciar sesiÃ³n</h1>
+            <p className="text-sm text-gray-600 mt-1">Sistema de calibraciÃ³n de ECUs</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
+              <label className="block text-sm font-medium text-gray-950 mb-2">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-light rounded-lg focus:outline-none focus:ring-2 focus:ring-green-dark/30 focus:border-transparent bg-white text-gray-950"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Contraseña</label>
+              <label className="block text-sm font-medium text-gray-950 mb-2">ContraseÃ±a</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-light rounded-lg focus:outline-none focus:ring-2 focus:ring-green-dark/30 focus:border-transparent bg-white text-gray-950"
                 required
               />
             </div>
@@ -68,7 +68,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-green-700 text-white py-2 rounded-lg font-medium hover:bg-green-800 transition-colors disabled:opacity-50"
+              className="w-full bg-green-dark text-white py-2 rounded-lg font-medium hover:bg-opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Accediendo..." : "Acceder"}
             </button>

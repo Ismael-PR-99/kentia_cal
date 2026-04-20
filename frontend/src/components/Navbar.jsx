@@ -13,14 +13,6 @@ export default function Navbar() {
     navigate("/");
   };
 
-  const isActive = (path) => location.pathname.startsWith(path);
-  const navLinkClass = (path) =>
-    `text-sm font-medium transition-colors ${
-      isActive(path)
-        ? "text-green-dark border-b-2 border-green-dark"
-        : "text-slate-600 hover:text-slate-900"
-    }`;
-
   const getInitials = () => {
     if (!user?.first_name && !user?.last_name) return user?.email?.[0]?.toUpperCase() || "U";
     const first = user?.first_name?.[0] || "";
@@ -28,62 +20,84 @@ export default function Navbar() {
     return (first + last).toUpperCase() || "U";
   };
 
+  const getBreadcrumb = () => {
+    const path = location.pathname;
+    if (path === "/" || path === "/login") return null;
+    if (path === "/dashboard") return [{ label: "Dashboard", path: "/dashboard" }];
+    if (path.includes("/dashboard/datasets")) return [
+      { label: "Dashboard", path: "/dashboard" },
+      { label: "Datasets", path: "/dashboard" },
+    ];
+    return null;
+  };
+
+  const breadcrumb = getBreadcrumb();
+
   return (
-    <nav className="bg-white border-b border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 font-bold text-lg">
-            <span className="text-2xl">⚙</span>
-            <span className="text-slate-900">kentia_cal</span>
-          </Link>
+    <nav className="bg-white border-b border-gray-light sticky top-0 z-40">
+      <div className="h-16 px-6 flex items-center justify-between">
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-2 font-bold text-lg">
+          <span className="text-2xl">⚙</span>
+          <span className="text-green-dark">kentia_cal</span>
+        </Link>
 
-          {/* Navigation Links */}
-          {token && (
-            <div className="flex items-center gap-8">
-              <Link to="/dashboard" className={navLinkClass("/dashboard")}>
-                Dashboard
-              </Link>
-              <Link to="/features" className={navLinkClass("/features")}>
-                Features
-              </Link>
-              <Link to="/releases" className={navLinkClass("/releases")}>
-                Releases
-              </Link>
-            </div>
-          )}
-
-          {/* Right Side */}
-          <div className="flex items-center gap-4">
-            {token ? (
-              <>
-                <div className="flex items-center gap-3">
-                  <div className="flex flex-col items-end">
-                    <span className="text-xs font-medium text-slate-900">
-                      {user?.first_name || user?.email}
-                    </span>
-                    <span className="text-xs text-slate-500">{role}</span>
-                  </div>
-                  <div className="w-8 h-8 rounded-full bg-green-dark text-white flex items-center justify-center text-xs font-semibold">
-                    {getInitials()}
-                  </div>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="text-sm text-slate-600 hover:text-slate-900 transition-colors"
-                >
-                  Salir
-                </button>
-              </>
-            ) : (
-              <Link
-                to="/login"
-                className="px-4 py-2 border border-green-dark text-green-dark rounded-lg hover:bg-green-light hover:bg-opacity-10 transition-colors font-medium text-sm"
-              >
-                Iniciar sesión
-              </Link>
-            )}
+        {/* Breadcrumb - Center */}
+        {breadcrumb && token && (
+          <div className="hidden md:flex items-center gap-1 text-sm">
+            {breadcrumb.map((item, idx) => (
+              <div key={idx} className="flex items-center gap-1">
+                {idx > 0 && <span className="text-gray-400">/</span>}
+                <Link to={item.path} className="text-gray-600 hover:text-gray-950 transition">
+                  {item.label}
+                </Link>
+              </div>
+            ))}
           </div>
+        )}
+
+        {/* Right Side */}
+        <div className="flex items-center gap-4">
+          {token ? (
+            <>
+              {/* Help & Notifications Icons */}
+              <button className="text-gray-600 hover:text-gray-950 text-lg transition" title="Ayuda">
+                ?
+              </button>
+              <button className="text-gray-600 hover:text-gray-950 text-lg transition relative" title="Notificaciones">
+                🔔
+              </button>
+
+              {/* User Info & Avatar */}
+              <div className="flex items-center gap-2 pl-4 border-l border-gray-light">
+                <div className="flex flex-col items-end text-xs">
+                  <span className="font-medium text-gray-950">
+                    {user?.first_name || user?.email?.split("@")[0]}
+                  </span>
+                  <span className="text-gray-500 capitalize">{role}</span>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-green-dark text-white flex items-center justify-center text-xs font-bold">
+                  {getInitials()}
+                </div>
+              </div>
+
+              {/* Logout */}
+              <button
+                onClick={handleLogout}
+                className="text-gray-600 hover:text-gray-950 text-lg transition"
+                title="Salir"
+              >
+                ↗
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/login"
+              className="px-4 py-2 border border-green-dark text-green-dark rounded-lg font-medium hover:bg-green-dark hover:text-white transition-colors text-sm"
+            >
+              Iniciar sesión
+            </Link>
+          )}
         </div>
       </div>
     </nav>
