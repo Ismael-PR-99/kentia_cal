@@ -196,7 +196,7 @@ export default function Datasets() {
         </select>
 
         {/* New Dataset Button */}
-        {(role === "admin" || role === "supplier") && (
+        {role === "admin" && (
           <Link
             to="/dashboard/datasets/new"
             className="btn-primary text-sm whitespace-nowrap"

@@ -30,7 +30,7 @@ export default function Login() {
       <div className="min-h-screen flex items-center justify-center bg-white px-4">
         <div className="bg-white rounded-lg border border-gray-light p-8 w-full max-w-md">
           <div className="mb-8 text-center">
-            <div className="text-2xl font-bold text-green-dark mb-3">⚙ kentia_cal</div>
+            <div className="text-2xl font-bold text-green-dark mb-3">⚙ Herko</div>
             <h1 className="text-xl font-bold text-gray-950">Iniciar sesión</h1>
             <p className="text-sm text-gray-600 mt-1">Sistema de calibración de ECUs</p>
           </div>

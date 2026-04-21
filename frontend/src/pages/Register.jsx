@@ -10,7 +10,6 @@ export default function Register() {
     last_name: "",
     email: "",
     password: "",
-    role: "viewer",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,7 +21,7 @@ export default function Register() {
     setError("");
     setLoading(true);
     try {
-      await register(form.email, form.password, form.first_name, form.last_name, form.role);
+      await register(form.email, form.password, form.first_name, form.last_name);
       navigate("/login");
     } catch (err) {
       setError(err.message || "Error al crear la cuenta");
@@ -40,7 +39,7 @@ export default function Register() {
       <div className="min-h-screen flex items-center justify-center bg-white px-4">
         <div className="bg-white rounded-lg border border-gray-light p-8 w-full max-w-md">
           <div className="mb-8 text-center">
-            <div className="text-2xl font-bold text-green-dark mb-3">⚙ kentia_cal</div>
+            <div className="text-2xl font-bold text-green-dark mb-3">⚙ Herko</div>
             <h1 className="text-xl font-bold text-gray-950">Crear cuenta</h1>
             <p className="text-sm text-gray-600 mt-1">Sistema de calibración de ECUs</p>
           </div>
@@ -94,19 +93,6 @@ export default function Register() {
                 required
                 minLength={8}
               />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-950 mb-2">Rol</label>
-              <select
-                name="role"
-                value={form.role}
-                onChange={handleChange}
-                className={inputClass}
-              >
-                <option value="viewer">Viewer — solo lectura</option>
-                <option value="supplier">Supplier — propone valores</option>
-              </select>
             </div>
 
             {error && (

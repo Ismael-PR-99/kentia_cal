@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { getToken, clearToken, getUserRole, getUser } from "../lib/auth.js";
+import { getToken, clearToken, getUserRole, getUser, isAdmin, isLoggedIn } from "../lib/auth.js";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ export default function Navbar() {
 
   const getBreadcrumb = () => {
     const path = location.pathname;
-    const breadcrumbs = [{ label: "kentia_cal", path: "/" }];
+    const breadcrumbs = [{ label: "Herko", path: "/" }];
 
     if (path === "/" || path === "/login") return breadcrumbs;
 
@@ -53,7 +53,7 @@ export default function Navbar() {
         <div className="flex items-center gap-3 min-w-0">
           <Link to="/" className="flex items-center gap-1.5 font-semibold text-sm flex-shrink-0">
             <span className="text-xl">⚙</span>
-            <span className="text-green-dark">kentia_cal</span>
+            <span className="text-green-dark">Herko</span>
           </Link>
 
           {/* Breadcrumb */}
@@ -80,6 +80,31 @@ export default function Navbar() {
 
         {/* Right: Icons & User */}
         <div className="flex items-center gap-3 ml-auto">
+          {isAdmin() && (
+            <Link
+              to="/admin"
+              className="text-sm font-medium text-gray-700 hover:text-gray-950 transition"
+            >
+              Panel Admin
+            </Link>
+          )}
+          {isLoggedIn() && (
+            <Link
+              to="/perfil"
+              className="text-sm font-medium text-gray-700 hover:text-gray-950 transition"
+            >
+              Mi Perfil
+            </Link>
+          )}
+          {!isLoggedIn() && (
+            <Link
+              to="/auth/login"
+              className="text-sm font-medium text-gray-700 hover:text-gray-950 transition"
+            >
+              Entrar
+            </Link>
+          )}
+
           {token ? (
             <>
               {/* Help Icon */}

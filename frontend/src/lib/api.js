@@ -33,18 +33,23 @@ export const login = async (email, password) => {
   const data = await handleResponse(res);
   setToken(data.access);
   try {
+    const responseRole = data?.user?.rol;
+    if (responseRole) {
+      setRole(responseRole);
+      return data;
+    }
     const b64 = data.access.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
     const payload = JSON.parse(atob(b64.padEnd(b64.length + (4 - (b64.length % 4)) % 4, "=")));
-    setRole(payload.role || "viewer");
+    setRole(payload.role || "usuario");
   } catch {}
   return data;
 };
 
-export const register = async (email, password, first_name, last_name, role) => {
+export const register = async (email, password, first_name, last_name) => {
   const res = await fetch(`${BASE_URL}/api/auth/register/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password, first_name, last_name, role }),
+    body: JSON.stringify({ email, password, first_name, last_name }),
   });
   return handleResponse(res);
 };

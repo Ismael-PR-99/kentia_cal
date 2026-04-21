@@ -1,5 +1,5 @@
-const TOKEN_KEY = "kentia_token";
-const ROLE_KEY = "kentia_role";
+const TOKEN_KEY = "herko_token";
+const ROLE_KEY = "herko_role";
 
 export const getToken = () => localStorage.getItem(TOKEN_KEY);
 export const setToken = (token) => localStorage.setItem(TOKEN_KEY, token);
@@ -24,13 +24,22 @@ const parseJwt = (token) => {
   }
 };
 
-export const getUser = () => {
+export const getCurrentUser = () => {
   const payload = parseJwt(getToken());
   if (!payload) return null;
   return {
+    id: payload.user_id,
+    nombre: [payload.first_name, payload.last_name].filter(Boolean).join(" ") || payload.email,
     email: payload.email,
     first_name: payload.first_name,
     last_name: payload.last_name,
     role: payload.role,
+    rol: payload.role,
   };
 };
+
+export const getUser = getCurrentUser;
+
+export const isAdmin = () => getCurrentUser()?.role === "admin";
+
+export const isLoggedIn = () => !!getToken() && !!getCurrentUser();

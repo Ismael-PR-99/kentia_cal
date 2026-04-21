@@ -85,7 +85,7 @@ export default function Home() {
                   Control de Roles
                 </h3>
                 <p className="text-gray-600">
-                  Roles diferenciados: OEM (aprueba), Supplier (edita), Admin (total), Viewer (consulta).
+                  Roles diferenciados: Admin (panel y operaciones sensibles) y Usuario (uso general).
                 </p>
               </div>
             </div>
@@ -112,7 +112,7 @@ export default function Home() {
 
         {/* Footer */}
         <footer className="py-8 px-4 bg-gray-ultra-light text-center text-gray-600 text-sm border-t border-gray-light">
-          <p>© 2026 kentia_cal. Sistema de calibración para automoción.</p>
+          <p>© 2026 Herko. Sistema de calibración para automoción.</p>
         </footer>
       </main>
     </>
