@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Releases | Kentia CAL{% endblock %}
+
+{% block content %}
+<section class="space-y-6">
+    <header>
+        <h1 class="text-2xl font-bold text-primary">Releases</h1>
+        <p class="mt-1 text-sm text-slate-600">Listado de releases disponibles.</p>
+    </header>
+
+    <section class="rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200 text-sm">
+                <thead class="bg-slate-100 text-left text-slate-700">
+                    <tr>
+                        <th class="px-4 py-3 font-semibold">Nombre</th>
+                        <th class="px-4 py-3 font-semibold">Fecha</th>
+                        <th class="px-4 py-3 font-semibold">Descripcion</th>
+                        <th class="px-4 py-3 font-semibold">Variables con valor</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for release in releases %}
+                    <tr class="hover:bg-slate-50">
+                        <td class="px-4 py-3 font-medium text-primary">
+                            <a href="{% url 'release_detail' release.id %}" class="hover:underline">{{ release.nombre }}</a>
+                        </td>
+                        <td class="px-4 py-3">{{ release.fecha|date:'d/m/Y' }}</td>
+                        <td class="px-4 py-3">{{ release.descripcion|default:'-' }}</td>
+                        <td class="px-4 py-3">{{ release.variables_total }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-4 py-6 text-center text-slate-500">No hay releases registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</section>
+{% endblock %}
