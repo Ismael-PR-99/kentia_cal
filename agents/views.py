@@ -1,25 +1,62 @@
-from django.http import JsonResponse
-from django.shortcuts import render
+from django.conf import settings
+from django.shortcuts import get_object_or_404, render
+
+from calibrations.models import Release, Variable
 
 from .services import CalibrationAnalystAgent, ReleaseReviewAgent
 
 
 def variable_analyze(request, pk):
-    """
-    Analyzes a variable using CalibrationAnalystAgent.
-    Returns JSON with analysis results or renders template with analysis.
-    """
-    agent = CalibrationAnalystAgent()
-    result = agent.analyze(pk)
+    """Muestra o ejecuta el análisis de una variable con el agente de calibración."""
+    variable = get_object_or_404(Variable.objects.select_related("feature"), pk=pk)
+    base_context = {
+        "type": "variable",
+        "variable": variable,
+    }
+
+    if not settings.ANTHROPIC_API_KEY.strip():
+        return render(
+            request,
+            "agents/analyze_result.html",
+            {
+                **base_context,
+                "success": False,
+                "error": "ANTHROPIC_API_KEY no está configurada. Configúrala en el entorno para ejecutar el análisis.",
+            },
+        )
+
+    if request.method != "POST":
+        return render(
+            request,
+            "agents/analyze_result.html",
+            {
+                **base_context,
+                "success": None,
+            },
+        )
+
+    try:
+        agent = CalibrationAnalystAgent()
+        result = agent.analyze(variable.id)
+    except Exception as error:
+        return render(
+            request,
+            "agents/analyze_result.html",
+            {
+                **base_context,
+                "success": False,
+                "error": f"No se pudo ejecutar el análisis: {error}",
+            },
+        )
 
     if not result.get("success"):
         return render(
             request,
             "agents/analyze_result.html",
             {
+                **base_context,
                 "success": False,
                 "error": result.get("error"),
-                "type": "variable",
             },
         )
 
@@ -27,30 +64,64 @@ def variable_analyze(request, pk):
         request,
         "agents/analyze_result.html",
         {
+            **base_context,
             "success": True,
-            "type": "variable",
-            "variable": result["variable"],
             "analysis": result["analysis"],
         },
     )
 
 
 def release_review(request, pk):
-    """
-    Reviews a release using ReleaseReviewAgent.
-    Returns JSON with review results or renders template with review.
-    """
-    agent = ReleaseReviewAgent()
-    result = agent.analyze(pk)
+    """Muestra o ejecuta la revisión de un release con el agente de revisión."""
+    release = get_object_or_404(Release, pk=pk)
+    base_context = {
+        "type": "release",
+        "release": release,
+    }
+
+    if not settings.ANTHROPIC_API_KEY.strip():
+        return render(
+            request,
+            "agents/analyze_result.html",
+            {
+                **base_context,
+                "success": False,
+                "error": "ANTHROPIC_API_KEY no está configurada. Configúrala en el entorno para ejecutar la revisión.",
+            },
+        )
+
+    if request.method != "POST":
+        return render(
+            request,
+            "agents/analyze_result.html",
+            {
+                **base_context,
+                "success": None,
+            },
+        )
+
+    try:
+        agent = ReleaseReviewAgent()
+        result = agent.analyze(release.id)
+    except Exception as error:
+        return render(
+            request,
+            "agents/analyze_result.html",
+            {
+                **base_context,
+                "success": False,
+                "error": f"No se pudo ejecutar la revisión: {error}",
+            },
+        )
 
     if not result.get("success"):
         return render(
             request,
             "agents/analyze_result.html",
             {
+                **base_context,
                 "success": False,
                 "error": result.get("error"),
-                "type": "release",
             },
         )
 
@@ -58,9 +129,8 @@ def release_review(request, pk):
         request,
         "agents/analyze_result.html",
         {
+            **base_context,
             "success": True,
-            "type": "release",
-            "release": result["release"],
             "summary": result["summary"],
             "review": result["review"],
         },

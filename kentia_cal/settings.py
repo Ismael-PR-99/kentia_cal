@@ -12,7 +12,7 @@ SECRET_KEY = env(
     "SECRET_KEY", default="django-insecure-change-me-in-env"
 )
 DEBUG = env("DEBUG")
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["127.0.0.1", "localhost"])
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -42,7 +42,7 @@ ROOT_URLCONF = "kentia_cal.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -58,7 +58,7 @@ WSGI_APPLICATION = "kentia_cal.wsgi.application"
 DATABASES = {
     "default": env.db(
         "DATABASE_URL",
-        default="postgres://postgres:postgres@127.0.0.1:5432/kentia_cal",
+        default=f"sqlite:///{(BASE_DIR / 'db.sqlite3').as_posix()}",
     )
 }
 AUTH_PASSWORD_VALIDATORS = [
@@ -67,8 +67,8 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
 ]
-LANGUAGE_CODE = "en-us"
-TIME_ZONE = "UTC"
+LANGUAGE_CODE = "es-es"
+TIME_ZONE = "Europe/Madrid"
 USE_I18N = True
 USE_TZ = True
 STATIC_URL = "static/"

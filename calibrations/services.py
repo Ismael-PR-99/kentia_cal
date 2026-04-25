@@ -1,7 +1,9 @@
 import logging
+from datetime import date
 from io import BytesIO
 
 from openpyxl import load_workbook
+from django.core.exceptions import MultipleObjectsReturned
 
 from .models import CalibrationValue, Feature, Release, Variable
 
@@ -74,7 +76,7 @@ def import_from_excel(file_obj) -> dict:
         for release_name in releases_in_table:
             release, created = Release.objects.update_or_create(
                 nombre=release_name,
-                defaults={"fecha": "2026-04-22", "descripcion": f"Imported from Excel"},
+                defaults={"fecha": date.today(), "descripcion": "Imported from Excel"},
             )
             if created:
                 summary["releases_created"] += 1
@@ -139,34 +141,86 @@ def import_from_excel(file_obj) -> dict:
                 break
 
         if second_table_row:
+            second_table_headers = {}
+            for col_idx in range(1, sheet.max_column + 1):
+                header_value = sheet.cell(second_table_row, col_idx).value
+                if header_value:
+                    second_table_headers[str(header_value).strip().lower()] = col_idx
+
+            value_col = second_table_headers.get("value") or second_table_headers.get("valor")
+            status_col = second_table_headers.get("status (maturity)") or second_table_headers.get("status")
+            verification_col = second_table_headers.get("verification") or second_table_headers.get("verificacion")
+            unit_col = second_table_headers.get("unit") or second_table_headers.get("unidad")
+            description_col = second_table_headers.get("description") or second_table_headers.get("descripcion")
+            release_col = second_table_headers.get("release")
+            responsible_col = second_table_headers.get("responsible") or second_table_headers.get("responsable")
+            variable_col = second_table_headers.get("variable")
+
+            if not value_col or not release_col or not variable_col:
+                summary["errors"].append("La cabecera de la segunda tabla no contiene las columnas mínimas requeridas.")
+                summary["success"] = False
+                return summary
+
             # Parse calibration values
             for row_idx in range(second_table_row + 1, sheet.max_row + 1):
-                cell_feature = sheet[f"A{row_idx}"].value
-                cell_variable = sheet[f"B{row_idx}"].value
-                cell_release = sheet[f"C{row_idx}"].value
-                cell_value = sheet[f"D{row_idx}"].value
-                cell_status = sheet[f"E{row_idx}"].value
-                cell_verification = sheet[f"F{row_idx}"].value
+                cell_value = sheet.cell(row_idx, value_col).value if value_col else None
+                cell_status = sheet.cell(row_idx, status_col).value if status_col else None
+                cell_verification = sheet.cell(row_idx, verification_col).value if verification_col else None
+                cell_unit = sheet.cell(row_idx, unit_col).value if unit_col else None
+                cell_description = sheet.cell(row_idx, description_col).value if description_col else None
+                cell_release = sheet.cell(row_idx, release_col).value if release_col else None
+                cell_responsible = sheet.cell(row_idx, responsible_col).value if responsible_col else None
+                cell_variable = sheet.cell(row_idx, variable_col).value if variable_col else None
 
                 # End of table
-                if not any([cell_feature, cell_variable, cell_release]):
+                if not any([cell_value, cell_variable, cell_release, cell_status, cell_verification]):
                     break
 
-                if cell_feature and cell_variable and cell_release and cell_value:
-                    feature_code = str(cell_feature).strip()
+                if cell_variable and cell_release and cell_value is not None:
                     var_name = str(cell_variable).strip()
                     release_name = str(cell_release).strip()
                     valor = float(cell_value) if cell_value else 0
                     status = str(cell_status).strip() if cell_status else "0.25"
                     verification = str(cell_verification).strip() if cell_verification else "No"
+                    unidad = str(cell_unit).strip() if cell_unit else ""
+                    descripcion = str(cell_description).strip() if cell_description else ""
+                    responsable = str(cell_responsible).strip() if cell_responsible else ""
 
                     try:
-                        variable = Variable.objects.get(
-                            feature__codigo=feature_code, nombre=var_name
-                        )
+                        variable = Variable.objects.get(nombre=var_name)
+                    except MultipleObjectsReturned:
+                        variable = Variable.objects.filter(nombre=var_name).order_by("id").first()
+                    except Variable.DoesNotExist:
+                        variable = None
+
+                    try:
                         release = Release.objects.get(nombre=release_name)
 
-                        calibration_value, created = CalibrationValue.objects.update_or_create(
+                        if not variable:
+                            raise Variable.DoesNotExist()
+
+                        variable_updated = False
+                        if unidad and variable.unidad != unidad:
+                            variable.unidad = unidad
+                            variable_updated = True
+                        if descripcion and variable.descripcion != descripcion:
+                            variable.descripcion = descripcion
+                            variable_updated = True
+                        if responsable:
+                            valid_responsibilities = {choice for choice, _label in Variable.Responsible.choices}
+                            normalized_responsable = responsable
+                            if responsable.upper() == "SUPPLIER":
+                                normalized_responsable = Variable.Responsible.SUPPLIER
+                            elif responsable.upper() == "OEM":
+                                normalized_responsable = Variable.Responsible.OEM
+                            if normalized_responsable in valid_responsibilities and variable.responsable != normalized_responsable:
+                                variable.responsable = normalized_responsable
+                                variable_updated = True
+
+                        if variable_updated:
+                            variable.save(update_fields=["unidad", "descripcion", "responsable", "updated_at"])
+
+                        _, created = CalibrationValue.objects.update_or_create(
                             variable=variable,
                             release=release,
                             defaults={
@@ -180,9 +234,9 @@ def import_from_excel(file_obj) -> dict:
                             summary["values_created"] += 1
                         else:
                             summary["values_updated"] += 1
-                    except (Variable.DoesNotExist, Release.DoesNotExist) as e:
+                    except (Variable.DoesNotExist, Release.DoesNotExist):
                         summary["errors"].append(
-                            f"Row {row_idx}: Variable ({feature_code}/{var_name}) or Release ({release_name}) not found"
+                            f"Row {row_idx}: Variable ({var_name}) or Release ({release_name}) not found"
                         )
 
         summary["success"] = True

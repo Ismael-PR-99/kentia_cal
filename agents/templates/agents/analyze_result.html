@@ -4,16 +4,53 @@
 
 {% block content %}
 <section class="space-y-6">
-    {% if success %}
-        {% if type == 'variable' %}
-        <header class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-            <h1 class="text-2xl font-bold text-primary">Análisis de Variable</h1>
-            <p class="mt-2 text-sm text-slate-600">
-                <span class="font-semibold">{{ variable.nombre }}</span> 
-                ({{ variable.feature }} | {{ variable.unidad }})
-            </p>
-        </header>
+    {% if type == 'variable' %}
+    <header class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <h1 class="text-2xl font-bold text-primary">Análisis de Variable</h1>
+        <p class="mt-2 text-sm text-slate-600">
+            <span class="font-semibold">{{ variable.nombre }}</span>
+            ({{ variable.feature.codigo|default:variable.feature }} | {{ variable.unidad|default:'-' }})
+        </p>
+    </header>
+    {% elif type == 'release' %}
+    <header class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <h1 class="text-2xl font-bold text-primary">Revisión de Release</h1>
+        <p class="mt-2 text-sm text-slate-600">
+            <span class="font-semibold">{{ release.nombre }}</span>
+            ({{ release.fecha }})
+        </p>
+    </header>
+    {% endif %}
 
+    {% if success is None %}
+        <section class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 class="text-lg font-semibold text-primary">Ejecución manual del agente</h2>
+            <p class="mt-2 text-sm text-slate-600">El análisis no se ejecuta automáticamente. Pulsa el botón para lanzarlo.</p>
+
+            {% if type == 'variable' %}
+            <form method="post" class="mt-4">
+                {% csrf_token %}
+                <button type="submit" class="inline-flex rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:opacity-95">
+                    Ejecutar análisis
+                </button>
+            </form>
+            <a href="{% url 'variable_detail' variable.id %}" class="mt-4 inline-flex rounded-md bg-slate-500 px-4 py-2 text-sm font-semibold text-white hover:opacity-95">
+                Volver a Variable
+            </a>
+            {% elif type == 'release' %}
+            <form method="post" class="mt-4">
+                {% csrf_token %}
+                <button type="submit" class="inline-flex rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:opacity-95">
+                    Ejecutar revisión
+                </button>
+            </form>
+            <a href="{% url 'release_detail' release.id %}" class="mt-4 inline-flex rounded-md bg-slate-500 px-4 py-2 text-sm font-semibold text-white hover:opacity-95">
+                Volver a Release
+            </a>
+            {% endif %}
+        </section>
+    {% elif success %}
+        {% if type == 'variable' %}
         <article class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
             <h2 class="mb-4 text-lg font-semibold text-primary">Análisis por Claude</h2>
             <div class="space-y-3 whitespace-pre-wrap text-sm text-slate-700">
@@ -24,16 +61,7 @@
         <a href="{% url 'variable_detail' variable.id %}" class="inline-flex rounded-md bg-slate-500 px-4 py-2 text-sm font-semibold text-white hover:opacity-95">
             Volver a Variable
         </a>
-
         {% elif type == 'release' %}
-        <header class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-            <h1 class="text-2xl font-bold text-primary">Revisión de Release</h1>
-            <p class="mt-2 text-sm text-slate-600">
-                <span class="font-semibold">{{ release.nombre }}</span> 
-                ({{ release.fecha }})
-            </p>
-        </header>
-
         <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <article class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                 <p class="text-sm text-slate-500">Total</p>
@@ -68,16 +96,21 @@
             Volver a Release
         </a>
         {% endif %}
-
     {% else %}
         <section class="rounded-lg border border-red-200 bg-red-50 p-6 shadow-sm">
             <h2 class="text-lg font-semibold text-red-700">Error en análisis</h2>
             <p class="mt-2 text-sm text-red-600">{{ error }}</p>
         </section>
 
-        <a href="javascript:history.back()" class="inline-flex rounded-md bg-slate-500 px-4 py-2 text-sm font-semibold text-white hover:opacity-95">
-            Volver atrás
+        {% if type == 'variable' %}
+        <a href="{% url 'variable_detail' variable.id %}" class="inline-flex rounded-md bg-slate-500 px-4 py-2 text-sm font-semibold text-white hover:opacity-95">
+            Volver a Variable
         </a>
+        {% elif type == 'release' %}
+        <a href="{% url 'release_detail' release.id %}" class="inline-flex rounded-md bg-slate-500 px-4 py-2 text-sm font-semibold text-white hover:opacity-95">
+            Volver a Release
+        </a>
+        {% endif %}
     {% endif %}
 </section>
 {% endblock %}
