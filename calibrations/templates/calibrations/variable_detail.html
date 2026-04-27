@@ -17,6 +17,19 @@
         </div>
     </header>
 
+    {% if variable.dimension_type != '1x1' %}
+    <div class="rounded-lg border border-green-400 bg-green-50 p-4 shadow-sm flex items-center justify-between">
+        <div>
+            <p class="font-semibold text-green-800">🗺 Esta variable es un mapa de calibración nxn</p>
+            <p class="text-sm text-green-700 mt-1">{{ variable.get_map_type_display }} · {{ variable.axis_x_label }} / {{ variable.axis_y_label }}</p>
+        </div>
+        <a href="{% url 'calibrations:map_viewer' variable.id %}"
+           class="rounded-md bg-green-600 px-5 py-2 text-sm font-semibold text-white hover:bg-green-500 transition-colors">
+            🗺 Abrir Map Viewer
+        </a>
+    </div>
+    {% endif %}
+
     <section class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
         <h2 class="mb-4 text-lg font-semibold text-primary">Madurez por release</h2>
         <div class="space-y-3">

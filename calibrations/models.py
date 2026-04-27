@@ -43,6 +43,22 @@ class Variable(models.Model):
 		choices=DimensionType.choices,
 		default=DimensionType.SCALAR_1X1,
 	)
+	map_type = models.CharField(
+		max_length=30,
+		blank=True,
+		default="",
+		choices=[
+			("spark_advance", "Spark Advance Map"),
+			("fuel_map", "Fuel Map"),
+			("torque_map", "Torque Map"),
+			("generic", "Generic Map"),
+			("", "Scalar / No map"),
+		],
+	)
+	axis_x_label = models.CharField(max_length=60, blank=True, default="")
+	axis_y_label = models.CharField(max_length=60, blank=True, default="")
+	axis_x_values = models.JSONField(null=True, blank=True)
+	axis_y_values = models.JSONField(null=True, blank=True)
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 

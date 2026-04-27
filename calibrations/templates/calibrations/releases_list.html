@@ -24,7 +24,7 @@
                     {% for release in releases %}
                     <tr class="hover:bg-slate-50">
                         <td class="px-4 py-3 font-medium text-primary">
-                            <a href="{% url 'release_detail' release.id %}" class="hover:underline">{{ release.nombre }}</a>
+                            <a href="{% url 'calibrations:release_detail' release.id %}" class="hover:underline">{{ release.nombre }}</a>
                         </td>
                         <td class="px-4 py-3">{{ release.fecha|date:'d/m/Y' }}</td>
                         <td class="px-4 py-3">{{ release.descripcion|default:'-' }}</td>

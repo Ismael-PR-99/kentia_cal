@@ -173,3 +173,99 @@ def import_view(request):
 		"import_done": False,
 	}
 	return render(request, "calibrations/import.html", context)
+
+
+def map_data_api(request, pk):
+	"""Endpoint JSON con los datos del mapa de calibración para Plotly."""
+	from django.http import JsonResponse
+
+	variable = get_object_or_404(
+		Variable.objects.select_related("feature"), pk=pk
+	)
+	release_id = request.GET.get("release")
+	if release_id:
+		release = get_object_or_404(Release, pk=release_id)
+		try:
+			cv = CalibrationValue.objects.get(variable=variable, release=release)
+		except CalibrationValue.DoesNotExist:
+			return JsonResponse({"error": "Sin datos para este release"}, status=404)
+	else:
+		cv = (
+			CalibrationValue.objects.filter(variable=variable)
+			.select_related("release")
+			.order_by("-release__fecha", "-release__id")
+			.first()
+		)
+		if not cv:
+			return JsonResponse({"error": "Sin datos"}, status=404)
+		release = cv.release
+
+	all_releases = list(
+		CalibrationValue.objects.filter(variable=variable)
+		.select_related("release")
+		.order_by("release__fecha")
+		.values("release__id", "release__nombre", "status_madurez", "verificacion")
+	)
+
+	# Valor promedio por release para el gráfico de evolución
+	evolution = []
+	for r in all_releases:
+		try:
+			ev = CalibrationValue.objects.get(
+				variable=variable, release__id=r["release__id"]
+			)
+			val = ev.valor
+			if isinstance(val, list):
+				flat = [x for row in val for x in (row if isinstance(row, list) else [row])]
+				avg = sum(flat) / len(flat) if flat else 0
+			else:
+				avg = float(val)
+			evolution.append({
+				"release": r["release__nombre"],
+				"avg": round(avg, 2),
+				"madurez": r["status_madurez"],
+			})
+		except CalibrationValue.DoesNotExist:
+			pass
+
+	return JsonResponse({
+		"variable": {
+			"id":             variable.id,
+			"nombre":         variable.nombre,
+			"feature":        variable.feature.codigo,
+			"unidad":         variable.unidad,
+			"map_type":       variable.map_type,
+			"dimension_type": variable.dimension_type,
+			"axis_x_label":   variable.axis_x_label,
+			"axis_y_label":   variable.axis_y_label,
+			"axis_x_values":  variable.axis_x_values,
+			"axis_y_values":  variable.axis_y_values,
+		},
+		"release": {
+			"id":     release.id,
+			"nombre": release.nombre,
+			"fecha":  release.fecha.isoformat(),
+		},
+		"data":          cv.valor,
+		"status_madurez": cv.status_madurez,
+		"verificacion":   cv.verificacion,
+		"all_releases":   all_releases,
+		"evolution":      evolution,
+	})
+
+
+def map_viewer(request, pk):
+	"""Vista principal del Map Viewer con Plotly."""
+	variable = get_object_or_404(
+		Variable.objects.select_related("feature"), pk=pk
+	)
+	releases = (
+		Release.objects.filter(calibration_values__variable=variable)
+		.order_by("fecha")
+		.distinct()
+	)
+	context = {
+		"variable": variable,
+		"releases": releases,
+	}
+	return render(request, "calibrations/map_viewer.html", context)

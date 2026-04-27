@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+
+{% block title %}Map Viewer — {{ variable.nombre }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-slate-900 text-slate-100 p-4">
+
+  <!-- CABECERA -->
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <h1 class="text-2xl font-bold text-green-400">
+        {{ variable.nombre }}
+      </h1>
+      <p class="text-slate-400 text-sm">
+        {{ variable.feature.codigo }} · {{ variable.unidad }} ·
+        {{ variable.get_map_type_display }}
+      </p>
+    </div>
+    <div class="flex gap-3 items-center">
+      <!-- Selector de release -->
+      <select id="releaseSelector"
+        class="bg-slate-800 border border-slate-600 text-slate-100
+               rounded px-3 py-2 text-sm focus:outline-none
+               focus:border-green-400">
+        {% for release in releases %}
+        <option value="{{ release.id }}">{{ release.nombre }}</option>
+        {% endfor %}
+      </select>
+      <!-- Badge madurez -->
+      <span id="madurezBadge"
+        class="px-3 py-1 rounded-full text-xs font-bold">
+        —
+      </span>
+      <!-- Botón IA -->
+      <a href="{% url 'agents:variable_analyze' variable.id %}"
+         class="bg-green-600 hover:bg-green-500 text-white px-4 py-2
+                rounded text-sm font-medium transition-colors">
+        ⚡ Analizar con IA
+      </a>
+      <!-- Volver -->
+      <a href="{% url 'calibrations:variable_detail' variable.id %}"
+         class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-4
+                py-2 rounded text-sm transition-colors">
+        ← Volver
+      </a>
+    </div>
+  </div>
+
+  <!-- INFO EJES -->
+  <div class="flex gap-4 mb-4 text-xs text-slate-400">
+    <span>Eje X: <span class="text-slate-200" id="axisXLabel">—</span></span>
+    <span>Eje Y: <span class="text-slate-200" id="axisYLabel">—</span></span>
+    <span>Release: <span class="text-slate-200" id="releaseLabel">—</span></span>
+    <span>Verificación: <span class="text-slate-200" id="verificacionLabel">—</span></span>
+  </div>
+
+  <!-- GRID PRINCIPAL -->
+  <div class="grid grid-cols-2 gap-4 mb-4">
+
+    <!-- TABLA HEATMAP 2D -->
+    <div class="bg-slate-800 rounded-lg p-3 border border-slate-700">
+      <h2 class="text-sm font-semibold text-slate-300 mb-2">
+        📊 Calibration Map (2D)
+      </h2>
+      <div class="overflow-auto max-h-96">
+        <table id="heatmapTable" class="text-xs border-collapse w-full"></table>
+      </div>
+    </div>
+
+    <!-- SUPERFICIE 3D -->
+    <div class="bg-slate-800 rounded-lg p-3 border border-slate-700">
+      <h2 class="text-sm font-semibold text-slate-300 mb-2">
+        🌐 3D Surface Plot
+      </h2>
+      <div id="surface3d" class="w-full h-80"></div>
+    </div>
+
+  </div>
+
+  <!-- GRÁFICO EVOLUCIÓN -->
+  <div class="bg-slate-800 rounded-lg p-3 border border-slate-700">
+    <h2 class="text-sm font-semibold text-slate-300 mb-2">
+      📈 Evolución por Release (valor promedio del mapa)
+    </h2>
+    <div id="evolutionChart" class="w-full h-48"></div>
+  </div>
+
+</div>
+
+<!-- Plotly desde CDN — sin instalar nada -->
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+<script>
+// ── Configuración ────────────────────────────────────────────────
+const VARIABLE_ID = {{ variable.id }};
+const API_BASE = "/calibrations/variables/" + VARIABLE_ID + "/map-data/";
+
+const MAP_COLORS = {
+  spark_advance: "RdYlGn_r",
+  fuel_map:      "Blues",
+  torque_map:    "Viridis",
+  generic:       "RdYlGn",
+  "":            "RdYlGn",
+};
+
+const MADUREZ_INFO = {
+  "0.25": { cls: "bg-red-600",                        texto: "0.25 — Inicial" },
+  "0.5":  { cls: "bg-orange-500",                     texto: "0.50 — Test Bench" },
+  "0.75": { cls: "bg-yellow-400 text-slate-900",      texto: "0.75 — Vehicle" },
+  "1.0":  { cls: "bg-green-500",                      texto: "1.00 — Homologation" },
+};
+
+// ── Normalizar valor → color RGB (azul→verde→rojo) ───────────────
+function valueToColor(val, min, max) {
+  const t = (max === min) ? 0.5 : (val - min) / (max - min);
+  const r = Math.round(t > 0.5  ? 255             : t * 2 * 255);
+  const g = Math.round(t < 0.5  ? t * 2 * 255     : (1 - t) * 2 * 255);
+  const b = Math.round(t < 0.5  ? 255 * (1 - t*2) : 0);
+  return `rgb(${r},${g},${b})`;
+}
+
+// ── Elegir color de texto según luminosidad del fondo ────────────
+function textColor(r, g, b) {
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.5 ? "#0f172a" : "#f1f5f9";
+}
+
+// ── Renderizar tabla heatmap 2D ──────────────────────────────────
+function renderHeatmap(matrix, axisX, axisY, unidad) {
+  const table = document.getElementById("heatmapTable");
+  if (!matrix || !Array.isArray(matrix)) {
+    table.innerHTML = '<tr><td class="text-slate-400 p-4">Sin datos de mapa</td></tr>';
+    return;
+  }
+
+  const flat = matrix.flat();
+  const min  = Math.min(...flat);
+  const max  = Math.max(...flat);
+
+  let html = "<thead><tr>";
+  html += '<th class="p-1 text-slate-500 text-center">↓Y / X→</th>';
+  (axisX || []).forEach(x => {
+    html += `<th class="p-1 text-slate-400 text-center whitespace-nowrap">${x}</th>`;
+  });
+  html += "</tr></thead><tbody>";
+
+  matrix.forEach((row, ri) => {
+    const yLabel = axisY ? axisY[ri] : ri;
+    html += `<tr><td class="p-1 text-slate-400 text-right pr-2 whitespace-nowrap font-medium">${yLabel}</td>`;
+    row.forEach((val, ci) => {
+      const color = valueToColor(val, min, max);
+      const m     = color.match(/\d+/g);
+      const tc    = textColor(+m[0], +m[1], +m[2]);
+      html += `<td
+        class="p-0 text-center cursor-pointer transition-all hover:ring-2 hover:ring-white hover:z-10"
+        style="background:${color};color:${tc};min-width:36px;height:28px;font-size:10px;"
+        title="${axisX ? axisX[ci] : ci} | ${yLabel} | ${val} ${unidad}">
+        ${val}
+      </td>`;
+    });
+    html += "</tr>";
+  });
+
+  html += "</tbody>";
+  table.innerHTML = html;
+}
+
+// ── Renderizar superficie 3D con Plotly ──────────────────────────
+function renderSurface3D(matrix, axisX, axisY, unidad, mapType) {
+  const colorscale = MAP_COLORS[mapType] || "RdYlGn";
+
+  const layout = {
+    paper_bgcolor: "#1e293b",
+    plot_bgcolor:  "#1e293b",
+    font:   { color: "#f1f5f9", size: 10 },
+    margin: { l: 0, r: 0, t: 0, b: 0 },
+    scene: {
+      xaxis: { title: "Engine Speed", tickvals: axisX, gridcolor: "#334155", color: "#94a3b8" },
+      yaxis: { title: "Load / Pressure", tickvals: axisY, gridcolor: "#334155", color: "#94a3b8" },
+      zaxis: { title: unidad, gridcolor: "#334155", color: "#94a3b8" },
+      bgcolor: "#1e293b",
+    },
+  };
+
+  const data = [{
+    type:       "surface",
+    x:          axisX  || [],
+    y:          axisY  || [],
+    z:          matrix || [],
+    colorscale: colorscale,
+    showscale:  true,
+    colorbar: {
+      thickness: 12,
+      len: 0.8,
+      tickfont: { color: "#94a3b8", size: 9 },
+      title: { text: unidad, font: { color: "#94a3b8" } },
+    },
+  }];
+
+  Plotly.newPlot("surface3d", data, layout, { responsive: true, displayModeBar: false });
+}
+
+// ── Renderizar gráfico de evolución ─────────────────────────────
+function renderEvolution(evolution, unidad, mapType) {
+  const colorMap = {
+    spark_advance: "#f97316",
+    fuel_map:      "#3b82f6",
+    torque_map:    "#6DB33F",
+    generic:       "#a78bfa",
+    "":            "#a78bfa",
+  };
+  const color = colorMap[mapType] || "#a78bfa";
+
+  const symbolMap = {
+    "0.25": "circle-open",
+    "0.5":  "square-open",
+    "0.75": "diamond-open",
+    "1.0":  "star",
+  };
+
+  const data = [{
+    type: "scatter",
+    mode: "lines+markers",
+    x:    evolution.map(e => e.release),
+    y:    evolution.map(e => e.avg),
+    line: { color: color, width: 2 },
+    marker: {
+      color:  color,
+      size:   10,
+      symbol: evolution.map(e => symbolMap[e.madurez] || "circle"),
+    },
+    name: unidad,
+    hovertemplate: "<b>%{x}</b><br>Avg: %{y} " + unidad + "<extra></extra>",
+  }];
+
+  const layout = {
+    paper_bgcolor: "#1e293b",
+    plot_bgcolor:  "#1e293b",
+    font:   { color: "#f1f5f9", size: 10 },
+    margin: { l: 50, r: 20, t: 10, b: 40 },
+    xaxis: { gridcolor: "#334155", color: "#94a3b8", tickfont: { size: 10 } },
+    yaxis: { gridcolor: "#334155", color: "#94a3b8", title: unidad, tickfont: { size: 10 } },
+  };
+
+  Plotly.newPlot("evolutionChart", data, layout, { responsive: true, displayModeBar: false });
+}
+
+// ── Actualizar badge de madurez ──────────────────────────────────
+function updateMadurezBadge(madurez) {
+  const badge = document.getElementById("madurezBadge");
+  const info  = MADUREZ_INFO[madurez] || { cls: "bg-slate-600", texto: madurez };
+  badge.className   = `px-3 py-1 rounded-full text-xs font-bold ${info.cls}`;
+  badge.textContent = info.texto;
+}
+
+// ── Cargar datos desde la API y renderizar todo ──────────────────
+async function loadMapData(releaseId) {
+  const url = releaseId ? `${API_BASE}?release=${releaseId}` : API_BASE;
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) { console.error("API error:", resp.status); return; }
+    const d = await resp.json();
+
+    // Actualizar cabecera informativa
+    document.getElementById("axisXLabel").textContent      = d.variable.axis_x_label  || "—";
+    document.getElementById("axisYLabel").textContent      = d.variable.axis_y_label  || "—";
+    document.getElementById("releaseLabel").textContent    = d.release.nombre;
+    document.getElementById("verificacionLabel").textContent = d.verificacion;
+    updateMadurezBadge(d.status_madurez);
+
+    const matrix  = d.data;
+    const axisX   = d.variable.axis_x_values;
+    const axisY   = d.variable.axis_y_values;
+    const unidad  = d.variable.unidad;
+    const mapType = d.variable.map_type;
+
+    // Renderizar los tres componentes
+    renderHeatmap(matrix, axisX, axisY, unidad);
+    renderSurface3D(matrix, axisX, axisY, unidad, mapType);
+    renderEvolution(d.evolution, unidad, mapType);
+
+  } catch (err) {
+    console.error("Error cargando mapa:", err);
+  }
+}
+
+// ── Inicialización ───────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+  const selector = document.getElementById("releaseSelector");
+  // Cargar el último release al entrar
+  loadMapData(selector.value || null);
+  // Recargar al cambiar release
+  selector.addEventListener("change", () => loadMapData(selector.value));
+});
+</script>
+{% endblock %}

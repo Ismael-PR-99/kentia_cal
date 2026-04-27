@@ -59,10 +59,10 @@
         </section>
 
         <div class="space-x-3">
-            <a href="{% url 'dashboard' %}" class="inline-flex rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:opacity-95">
+            <a href="{% url 'calibrations:dashboard' %}" class="inline-flex rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:opacity-95">
                 Ir a Dashboard
             </a>
-            <a href="{% url 'import' %}" class="inline-flex rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+            <a href="{% url 'calibrations:import' %}" class="inline-flex rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                 Importar otro archivo
             </a>
         </div>
@@ -77,7 +77,7 @@
             </ul>
         </section>
 
-        <a href="{% url 'import' %}" class="inline-flex rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:opacity-95">
+        <a href="{% url 'calibrations:import' %}" class="inline-flex rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:opacity-95">
             Intentar nuevamente
         </a>
         {% endif %}

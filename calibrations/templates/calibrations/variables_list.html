@@ -30,7 +30,7 @@
         </div>
         <div class="flex items-end gap-2">
             <button type="submit" class="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:opacity-95">Filtrar</button>
-            <a href="{% url 'variable_list' %}" class="rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Limpiar</a>
+            <a href="{% url 'calibrations:variable_list' %}" class="rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Limpiar</a>
         </div>
     </form>
 
@@ -42,6 +42,7 @@
                         <th class="px-4 py-3 font-semibold">Variable</th>
                         <th class="px-4 py-3 font-semibold">Feature</th>
                         <th class="px-4 py-3 font-semibold">Unidad</th>
+                        <th class="px-4 py-3 font-semibold">Tipo</th>
                         <th class="px-4 py-3 font-semibold">Responsable</th>
                         <th class="px-4 py-3 font-semibold">Status ultimo release{% if latest_release %} ({{ latest_release.nombre }}){% endif %}</th>
                     </tr>
@@ -50,10 +51,23 @@
                     {% for row in variables_with_latest_status %}
                     <tr class="hover:bg-slate-50">
                         <td class="px-4 py-3 font-medium text-primary">
-                            <a href="{% url 'variable_detail' row.variable.id %}" class="hover:underline">{{ row.variable.nombre }}</a>
+                            <a href="{% url 'calibrations:variable_detail' row.variable.id %}" class="hover:underline">{{ row.variable.nombre }}</a>
+                            {% if row.variable.map_type %}
+                            <a href="{% url 'calibrations:map_viewer' row.variable.id %}"
+                               class="ml-2 inline-flex items-center gap-1 rounded bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-800 hover:bg-green-200">
+                               🗺 Ver Mapa
+                            </a>
+                            {% endif %}
                         </td>
                         <td class="px-4 py-3">{{ row.variable.feature.codigo }}</td>
                         <td class="px-4 py-3">{{ row.variable.unidad|default:'-' }}</td>
+                        <td class="px-4 py-3">
+                            {% if row.variable.map_type %}
+                            <span class="inline-flex rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700">{{ row.variable.get_map_type_display }}</span>
+                            {% else %}
+                            <span class="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-500">Escalar</span>
+                            {% endif %}
+                        </td>
                         <td class="px-4 py-3">{{ row.variable.responsable }}</td>
                         <td class="px-4 py-3">
                             {% if row.latest_value %}
@@ -73,7 +87,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="px-4 py-6 text-center text-slate-500">No hay variables para los filtros seleccionados.</td>
+                        <td colspan="6" class="px-4 py-6 text-center text-slate-500">No hay variables para los filtros seleccionados.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
